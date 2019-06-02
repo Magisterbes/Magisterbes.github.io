@@ -1,0 +1,49 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <meta charset="utf-8" />
+
+    <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans%7COpen+Sans%7COpen+Sans" media="all">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://www.powr.io/shims/styles/shim.css">
+	
+	
+	 <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=f68e8eff-94d9-425e-a14f-9c436aa0953d" type="text/javascript"></script>
+	<script type="text/javascript">
+	var a = ymaps.ready(init);
+
+	function {
+		var myMap = new ymaps.Map('map_geos', {
+				center: [50.753994, 34.022093],
+				zoom: 14,
+				controls: ['zoomControl']
+			});
+	   var searchControl = new ymaps.control.SearchControl({
+			options: {
+				provider: 'yandex#search'
+			}
+		});
+		
+		myMap.controls.add(searchControl);
+		searchControl.search('50.753994, 34.022093');
+		
+	}	
+	
+</head>
+<body>
+
+
+
+
+<p>Пример использования Поиска по организациям</p>
+<input class="form-control" name=Query" placeholder="адрес" type="text" >
+<div id="map_geos"  style="width: 100%; height: 700px;"></div>
+
+
+
+</body>
