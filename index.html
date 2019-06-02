@@ -17,10 +17,11 @@
 	<script type="text/javascript">
 	var a = ymaps.ready(init);
 	var searchControl  = null;
-
+	var myPlacemark;
+	var myMap;
 	function init(){
 	
-		var myPlacemark,
+		
 			myMap = new ymaps.Map('map_geos', {
 					center: [59.95,30.38],
 					zoom: 14,
@@ -55,32 +56,43 @@
 			
 		});
 
-		    // Создание метки.
-		function createPlacemark(coords) {
-			return new ymaps.Placemark(coords,  {
-				preset: 'islands#violetDotIconWithCaption',
-				draggable: true
-			});
-		}
+
 				
 		
 		
 	}	
-	
+			    // Создание метки.
+	function createPlacemark(coords) {
+		return new ymaps.Placemark(coords,  {
+			preset: 'islands#violetDotIconWithCaption',
+			draggable: true
+		});
+	}
 	function BtnClick() {
 		var txt = $("#query")[0].value;
 		var lat = $("#lat")[0].value;
 		var lon = $("#lon")[0].value;
+		
+		if (myPlacemark) {
+			myPlacemark.geometry.setCoordinates([parseFloat(lat),parseFloat(lon)]);
+		}
+		// Если нет – создаем.
+		else {
+			myPlacemark = createPlacemark([parseFloat(lat),parseFloat(lon)]);
+			myMap.geoObjects.add(myPlacemark);
+		}
+
+			
 		var query = "";
 		if (txt != ""){
 			searchControl.search(txt.value);
-			var query = "https://search-maps.yandex.ru/v1/?text="+txt+"&type=biz&lang=ru_RU&results=50&apikey=f68e8eff-94d9-425e-a14f-9c436aa0953d";
+			var query = "https://search-maps.yandex.ru/v1/?text="+txt+"&type=geo&lang=ru_RU&results=50&apikey=f68e8eff-94d9-425e-a14f-9c436aa0953d";
 		}
 		else
 		{
 			searchControl.search(lat + "," +lon);
 			
-			var query = "https://search-maps.yandex.ru/v1/?ll="+lat+","+lon+"&spn=0.01,0.02&type=biz&lang=ru_RU&results=50&apikey=f68e8eff-94d9-425e-a14f-9c436aa0953d";
+			var query = "https://search-maps.yandex.ru/v1/?ll="+lon+","+lat+"&spn=0.01,0.02&type=biz&lang=ru_RU&results=15&apikey=f68e8eff-94d9-425e-a14f-9c436aa0953d";
 		
 		
 		}
