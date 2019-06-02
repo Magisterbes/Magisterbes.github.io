@@ -16,23 +16,93 @@
 	<script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey=a61a8102-e5c8-43db-b4b2-7759780b5e89" type="text/javascript"></script>
 	<script type="text/javascript">
 	var a = ymaps.ready(init);
+	var searchControl  = null;
 
 	function init(){
-		var myMap = new ymaps.Map('map_geos', {
-				center: [50.753994, 34.022093],
-				zoom: 14,
-				controls: ['zoomControl']
+	
+		var myPlacemark,
+			myMap = new ymaps.Map('map_geos', {
+					center: [59.95,30.38],
+					zoom: 14,
+					controls: ['zoomControl']
+				});
+			searchControl = new ymaps.control.SearchControl({
+				options: {
+					provider: 'yandex#search'
+				}
 			});
-	   var searchControl = new ymaps.control.SearchControl({
-			options: {
-				provider: 'yandex#search'
-			}
-		});
-		
+			
 		myMap.controls.add(searchControl);
-		searchControl.search('50.753994, 34.022093');
+		searchControl.search('59.95,30.38');
+		
+	    myMap.events.add('click', function (e) {
+			var coords = e.get('coords');
+
+			// Если метка уже создана – просто передвигаем ее.
+			if (myPlacemark) {
+				myPlacemark.geometry.setCoordinates(coords);
+			}
+			// Если нет – создаем.
+			else {
+				myPlacemark = createPlacemark(coords);
+				myMap.geoObjects.add(myPlacemark);
+			}
+			
+			$("#lat")[0].value =coords[0];
+			$("#lon")[0].value =coords[1];	
+			BtnClick();
+			
+			
+		});
+
+		    // Создание метки.
+		function createPlacemark(coords) {
+			return new ymaps.Placemark(coords,  {
+				preset: 'islands#violetDotIconWithCaption',
+				draggable: true
+			});
+		}
+				
+		
 		
 	}	
+	
+	function BtnClick() {
+		var txt = $("#query")[0].value;
+		var lat = $("#lat")[0].value;
+		var lon = $("#lon")[0].value;
+		var query = "";
+		if (txt != ""){
+			searchControl.search(txt.value);
+			var query = "https://search-maps.yandex.ru/v1/?text="+txt+"&type=biz&lang=ru_RU&results=50&apikey=f68e8eff-94d9-425e-a14f-9c436aa0953d";
+		}
+		else
+		{
+			searchControl.search(lat + "," +lon);
+			
+			var query = "https://search-maps.yandex.ru/v1/?ll="+lat+","+lon+"&spn=0.01,0.02&type=biz&lang=ru_RU&results=50&apikey=f68e8eff-94d9-425e-a14f-9c436aa0953d";
+		
+		
+		}
+		
+		$.get(query).done(function (response) {
+		
+			var feat = response["features"];
+			var tt = "";
+			$("#what_found").text("");
+			feat.forEach(function(element) {
+			  tt += element["properties"]["name"] + "," + element["properties"]["description"] + "<br/>";	 
+			});
+
+				$("#what_found").html(tt);
+			}).fail(function (e) {
+				var  a=1;
+		});
+	
+	}
+
+
+	
 	</script>
 </head>
 <body>
@@ -40,10 +110,36 @@
 
 
 
-<p>Пример использования Поиска по организациям</p>
-<input class="form-control" name=Query" placeholder="адрес" type="text" >
-<div id="map_geos"  style="width: 100%; height: 700px;"></div>
+<h2>Пример использования поиска по организациям</h2>
+<table>
+<tbody>
+<tr>
+<td>Lat</td>
+<td>Lon</td>
+<td>Query</td>
+</tr>
+<tr>
+<td><input class="form-control" id="lat" style="width: 100px; height: 30px;" placeholder="широта" type="text" ></td>
+<td><input class="form-control" id="lon" style="width: 100px; height: 30px;" placeholder="долгота" type="text" ></td>
+<td><input class="form-control" id="query" style="width: 300px; height: 30px;" placeholder="адрес" type="text" ></td>
+</tr>
+</tbody>
+</table>
+<input  id="Button"  onclick="BtnClick()" value="Найти" type="button" >
+<br/><br/>
 
+<table>
+<tbody>
+<tr>
+<td><h3>Карта</h3></td>
+<td><h3>Результат из API</h3></td>
+</tr>
+<tr>
+<td><div id="map_geos"  style="width: 800px; height: 500px;"></div></td>
+<td><div id="what_found"  style="width: 100%; height: 500px;"></div></td>
+</tr>
+</tbody>
+</table>
 
 
 </body>
